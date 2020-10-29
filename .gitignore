@@ -1,5 +1,15 @@
 dcgan/data
 data
+data/
+venvs/
+venv/
+.vscode/
+.idea/
+*.bin
+*.pt
+*.pdf
+backup/
+*.log
 *.pyc
 OpenNMT/data
 cpp/mnist/build
