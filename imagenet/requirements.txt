@@ -1,2 +1,7 @@
+numpy
 torch
 torchvision
+matplotlib
+tqdm
+six
+lmdb
