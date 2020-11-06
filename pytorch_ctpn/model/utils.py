@@ -32,10 +32,10 @@ def gen_anchor(featuresize, scale):
 
 
 def cal_iou(box1, box1_area, boxes2, boxes2_area):
-    x1 = np.maximum(box1[0], boxes2[:,0])
-    y1 = np.maximum(box1[1], boxes2[:,1])
-    x2 = np.minimum(box1[2], boxes2[:,2])
-    y2 = np.minimum(box1[3], boxes2[:,3])
+    x1 = np.maximum(box1[0], boxes2[:, 0])
+    y1 = np.maximum(box1[1], boxes2[:, 1])
+    x2 = np.minimum(box1[2], boxes2[:, 2])
+    y2 = np.minimum(box1[3], boxes2[:, 3])
 
     intersection = np.maximum(x2 - x1, 0) * np.maximum(y2 - y1, 0)
     iou = intersection / (box1_area + boxes2_area[:] - intersection[:])
@@ -73,6 +73,7 @@ def bbox_transfrom(anchors, gtboxes):
 
     return np.vstack((Vc, Vh)).transpose()
 
+
 def bbox_transfor_inv(anchor, regr):
     """
         return predict bbox
@@ -95,6 +96,7 @@ def bbox_transfor_inv(anchor, regr):
     bbox = np.vstack((x1, y1, x2, y2)).transpose()
 
     return bbox
+
 
 def cal_rpn(imgsize, featuresize, scale, gtboxes):
     imgh, imgw = imgsize
@@ -123,20 +125,20 @@ def cal_rpn(imgsize, featuresize, scale, gtboxes):
 
     # only keep anchors inside the image
     outside_anchor = np.where(
-        (base_anchor[:, 0] < 0)|
-        (base_anchor[:, 1] < 0)|
-        (base_anchor[:, 2] >= imgw)|
+        (base_anchor[:, 0] < 0) |
+        (base_anchor[:, 1] < 0) |
+        (base_anchor[:, 2] >= imgw) |
         (base_anchor[:, 3] >= imgh)
     )[0]
     labels[outside_anchor] = -1
 
     # subsample positive labels ,if greater than RPN_POSITIVE_NUM(default 128)
     fg_index = np.where(labels == 1)[0]
-    if len(fg_index) > 150 :
+    if len(fg_index) > 150:
         labels[np.random.choice(fg_index, len(fg_index) - 150, replace=False)] = -1
 
     # subsample negative labels
-    bg_index = np.where(labels ==  0)[0]
+    bg_index = np.where(labels == 0)[0]
     num_bg = 300 - np.sum(labels == 1)
     if len(bg_index) > num_bg:
         labels[np.random.choice(bg_index, len(bg_index) - num_bg, replace=False)] = -1
@@ -153,6 +155,7 @@ def cal_rpn(imgsize, featuresize, scale, gtboxes):
 
     return labels, bbox_targets, base_anchor
 
+
 def nms(dets, thresh):
     x1 = dets[:, 0]
     y1 = dets[:, 1]
@@ -161,7 +164,7 @@ def nms(dets, thresh):
     scores = dets[:, 4]
 
     areas = (x2 - x1 + 1) * (y2 - y1 + 1)
-    order = scores.argsort()[::-1] #按置信率降序排列idx
+    order = scores.argsort()[::-1]  # 按置信率降序排列idx
 
     keep = []
     while order.size > 0:
@@ -179,6 +182,7 @@ def nms(dets, thresh):
         order = order[inds + 1]
     return keep
 
+
 class Graph:
     def __init__(self, graph):
         self.graph = graph
@@ -194,6 +198,7 @@ class Graph:
                     sub_graphs[-1].append(v)
         return sub_graphs
 
+
 class TextLineCfg:
     MAX_HORIZONTAL_GAP = 50
     TEXT_PROPOSALS_MIN_SCORE = 0.7
@@ -204,6 +209,7 @@ class TextLineCfg:
     LINE_MIN_SCORE = 0.9
     TEXT_PROPOSALS_WIDTH = 16
     MIN_NUM_PROPOSALS = 2
+
 
 class TextProposalGraphBuilder:
     """
@@ -279,6 +285,7 @@ class TextProposalGraphBuilder:
                 # have equal scores.
                 graph[index, succession_index] = True
         return Graph(graph)
+
 
 class TextProposalConnectorOriented:
     """

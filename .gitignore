@@ -1,6 +1,5 @@
 dcgan/data
-data
-data/
+data/MNIST
 venvs/
 venv/
 .vscode/
